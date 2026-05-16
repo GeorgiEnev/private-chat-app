@@ -31,3 +31,38 @@ export async function signUpUser({ username, email, password }: SignUpData) {
     };
   }
 }
+
+type SignInData = {
+  email: string;
+  password: string;
+};
+
+export async function signInUser({ email, password }: SignInData) {
+  try {
+    const response = await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+      },
+    });
+
+    return {
+      success: true,
+      data: response,
+    };
+  } catch (error) {
+    console.error(error);
+
+    if (error instanceof Error) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    return {
+      success: false,
+      error: "Something went wrong.",
+    };
+  }
+}

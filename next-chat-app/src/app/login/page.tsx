@@ -6,27 +6,30 @@ import { useState } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { InputField } from "@/components/auth/input-field";
 
-import { signUpUser } from "@/actions/auth-actions";
+import { signInUser } from "@/actions/auth-actions";
 
-export default function SignUpPage() {
-  const [username, setUsername] = useState("");
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setError("");
     setIsLoading(true);
 
     try {
-      const result = await signUpUser({
-        username,
-        email,
-        password,
-      });
+        const result = await signInUser({ email, password });
+        
+        if (!result.success) {
+            setError(result.error ?? "Something went wrong.");
+            return;
+        }
 
-      console.log(result);
+        console.log("Logged In");
     } catch (error) {
       console.error(error);
     } finally {
@@ -37,17 +40,10 @@ export default function SignUpPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-neutral-950 px-4">
       <AuthCard
-        title="Create account"
-        description="Create a secure private chat account."
+        title="Welcome back"
+        description="Login to continue your private conversations."
       >
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <InputField
-            label="Username"
-            placeholder="Enter your username"
-            value={username}
-            onChange={setUsername}
-          />
-
+        <form onSubmit={handleSubmit} className="space-y-5">
           <InputField
             label="Email"
             type="email"
@@ -64,18 +60,24 @@ export default function SignUpPage() {
             onChange={setPassword}
           />
 
+          {error && (
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition hover:opacity-90"
+            className="w-full rounded-xl bg-white px-4 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? "Creating account..." : "Create account"}
+            {isLoading ? "Signing in..." : "Login"}
           </button>
 
           <p className="text-center text-sm text-neutral-400">
-            Already have an account?{" "}
-            <Link href="/login" className="text-white hover:underline">
-              Login
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-white hover:underline">
+              Create one
             </Link>
           </p>
         </form>
