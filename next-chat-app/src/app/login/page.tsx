@@ -1,37 +1,61 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { signInUser } from "@/actions/auth-actions";
 import { AuthCard } from "@/components/auth/auth-card";
 import { InputField } from "@/components/auth/input-field";
-
-import { signInUser } from "@/actions/auth-actions";
+import { validateLoginInput } from "@/lib/validators/auth-validator";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
+
+    const validationResult = validateLoginInput({
+      email,
+      password,
+    });
+
+    if (!validationResult.success) {
+      setError(validationResult.error ?? "Invalid form data.");
+
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-        const result = await signInUser({ email, password });
-        
-        if (!result.success) {
-            setError(result.error ?? "Something went wrong.");
-            return;
-        }
+      const result = await signInUser({
+        email,
+        password,
+      });
 
-        console.log("Logged In");
+      if (!result.success) {
+        setError(result.error ?? "Failed to login.");
+
+        return;
+      }
+
+      setEmail("");
+      setPassword("");
+
+      router.push("/dashboard");
     } catch (error) {
       console.error(error);
+
+      setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
