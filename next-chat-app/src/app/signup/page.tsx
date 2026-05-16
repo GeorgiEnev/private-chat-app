@@ -5,6 +5,8 @@ import { useState } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { InputField } from "@/components/auth/input-field";
 
+import { signUpUser } from "@/actions/auth-actions";
+
 export default function SignUpPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -17,11 +19,13 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      console.log({
+      const result = await signUpUser({
         username,
         email,
         password,
       });
+
+      console.log(result);
     } catch (error) {
       console.error(error);
     } finally {
