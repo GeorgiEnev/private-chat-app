@@ -1,30 +1,33 @@
-import LogoutButton from "@/components/auth/logout-button";
+import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
+import { DashboardTopbar } from "@/components/dashboard/dashboard-topbar";
+
 import { getSession } from "@/server/auth/get-session";
 
 export default async function DashboardPage() {
   const session = await getSession();
 
-  const username = session?.user?.name;
+  const username = session?.user?.name ?? "User";
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="border-b border-neutral-900">
-        <div className="flex items-center justify-end px-6 py-5">
-          <LogoutButton />
-        </div>
-      </div>
+    <DashboardLayout>
+      <DashboardTopbar username={username} />
 
-      <section className="mx-auto flex min-h-[calc(100vh-81px)] max-w-7xl items-center px-6">
-        <div className="space-y-6">
-          <p className="text-sm font-medium uppercase tracking-[0.35em] text-neutral-500">
-            Dashboard
+      <section className="flex h-[calc(100vh-80px)] items-center justify-center">
+        <div className="flex flex-col items-center text-center">
+          <div className="flex h-28 w-28 items-center justify-center rounded-full border border-neutral-900 bg-neutral-950">
+            <span className="text-5xl text-neutral-700">#</span>
+          </div>
+
+          <h2 className="mt-8 text-3xl font-semibold text-white">
+            No room selected
+          </h2>
+
+          <p className="mt-4 max-w-md text-neutral-500">
+            Create a new private room or select one from the sidebar to start
+            chatting.
           </p>
-
-          <h1 className="max-w-5xl text-5xl font-bold leading-tight tracking-tight">
-            Welcome back, {username}.
-          </h1>
         </div>
       </section>
-    </main>
+    </DashboardLayout>
   );
 }

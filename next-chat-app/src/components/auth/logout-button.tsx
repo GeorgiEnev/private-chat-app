@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { signOutUser } from "@/actions/session-actions";
 
-export default function LogoutButton() {
+export function LogoutButton() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
