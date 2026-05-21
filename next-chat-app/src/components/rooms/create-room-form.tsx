@@ -1,27 +1,31 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { createRoom } from "@/actions/room-actions";
 
-export function CreateRoomForm() {
+type CreateRoomFormProps = {
+  onRoomCreated: (room: {
+    id: string;
+    name: string;
+    token: string;
+    isDestructible: boolean;
+  }) => void;
+};
+
+export function CreateRoomForm({ onRoomCreated }: CreateRoomFormProps) {
   const [name, setName] = useState("");
 
   const [isDestructible, setIsDestructible] = useState(false);
-
-  const [token, setToken] = useState("");
 
   const [error, setError] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleCreateRoom(
-    event: React.SyntheticEvent<HTMLFormElement>,
-  ) {
+  async function handleCreateRoom(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
-    setToken("");
 
     if (!name.trim()) {
       setError("Room name is required.");
@@ -44,10 +48,11 @@ export function CreateRoomForm() {
 
       if (!result.room) {
         setError("Room was created, but no room data was returned.");
+
         return;
       }
 
-      setToken(result.room.token);
+      onRoomCreated(result.room);
 
       setName("");
       setIsDestructible(false);
@@ -61,10 +66,7 @@ export function CreateRoomForm() {
   }
 
   return (
-    <form
-      onSubmit={handleCreateRoom}
-      className="space-y-6 rounded-2xl border border-neutral-900 bg-neutral-950 p-6"
-    >
+    <form onSubmit={handleCreateRoom} className="space-y-5">
       <div className="space-y-2">
         <label className="text-sm font-medium text-neutral-300">
           Room name
@@ -75,33 +77,26 @@ export function CreateRoomForm() {
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder="Secret room"
-          className="w-full rounded-xl border border-neutral-800 bg-black px-4 py-3 text-white outline-none transition focus:border-neutral-700"
+          className="h-12 w-full rounded-xl bg-[#101010] px-4 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:bg-[#141414]"
         />
       </div>
 
-      <label className="flex items-center gap-3 text-sm text-neutral-300">
+      <label className="flex items-center gap-3 text-sm text-neutral-400">
         <input
           type="checkbox"
           checked={isDestructible}
           onChange={(event) => setIsDestructible(event.target.checked)}
+          className="h-4 w-4 rounded border-neutral-700 bg-[#101010]"
         />
         Destructible room
       </label>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
-      {token && (
-        <div className="rounded-xl border border-green-900 bg-green-950/40 p-4">
-          <p className="text-sm text-green-300">Invite token:</p>
-
-          <p className="mt-2 break-all font-mono text-white">{token}</p>
-        </div>
-      )}
-
       <button
         type="submit"
         disabled={isLoading}
-        className="rounded-xl bg-white px-5 py-3 text-sm font-medium text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-11 w-full items-center justify-center rounded-xl bg-white text-sm font-medium text-black transition hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isLoading ? "Creating room..." : "Create room"}
       </button>
