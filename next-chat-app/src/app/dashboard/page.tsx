@@ -1,6 +1,11 @@
 import LogoutButton from "@/components/auth/logout-button";
+import { getSession } from "@/server/auth/get-session";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await getSession();
+
+  const username = session?.user?.name;
+
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="border-b border-neutral-900">
@@ -16,7 +21,7 @@ export default function DashboardPage() {
           </p>
 
           <h1 className="max-w-5xl text-5xl font-bold leading-tight tracking-tight">
-            Welcome to your private chat workspace.
+            Welcome back, {username}.
           </h1>
         </div>
       </section>
