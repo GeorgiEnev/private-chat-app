@@ -8,6 +8,16 @@ export async function getRoomByToken(token: string) {
 
     include: {
       members: true,
+
+      messages: {
+        include: {
+          sender: true,
+        },
+
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
   });
 }
