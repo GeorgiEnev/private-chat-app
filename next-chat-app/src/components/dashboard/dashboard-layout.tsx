@@ -1,8 +1,5 @@
-"use client";
 
-import { ReactNode, useState } from "react";
-
-import { CreateRoomModal } from "@/components/rooms/create-room-modal";
+import { ReactNode } from "react";
 
 import { DashboardSidebar } from "./dashboard-sidebar";
 
@@ -11,18 +8,10 @@ type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
-
   return (
     <>
-      <CreateRoomModal
-        isOpen={isCreateRoomOpen}
-        onClose={() => setIsCreateRoomOpen(false)}
-      />
-
       <div className="flex min-h-screen bg-black text-white">
-        <DashboardSidebar onCreateRoom={() => setIsCreateRoomOpen(true)} />
-
+        <DashboardSidebar />
         <main className="flex-1">{children}</main>
       </div>
     </>

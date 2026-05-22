@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { CreateRoomForm } from "./create-room-form";
 
+import { useRouter } from "next/navigation";
+
 type CreateRoomModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -18,6 +20,8 @@ type CreatedRoom = {
 
 export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
   const [createdRoom, setCreatedRoom] = useState<CreatedRoom | null>(null);
+
+  const router = useRouter();
 
   if (!isOpen) {
     return null;
@@ -59,7 +63,12 @@ export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
         </div>
 
         {!createdRoom ? (
-          <CreateRoomForm onRoomCreated={(room) => setCreatedRoom(room)} />
+          <CreateRoomForm
+            onRoomCreated={(room) => {
+              setCreatedRoom(room);
+              router.refresh();
+            }}
+          />
         ) : (
           <div className="space-y-5">
             <div className="rounded-2xl bg-[#101010] p-5">
