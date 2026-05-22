@@ -28,6 +28,12 @@ export async function createRoom({ name, isDestructible }: CreateRoomData) {
       token,
       isDestructible,
       ownerId: session.user.id,
+
+      members: {
+        create: {
+          userId: session.user.id,
+        },
+      },
     },
   });
 
