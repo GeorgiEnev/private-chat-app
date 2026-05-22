@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getSession } from "@/server/auth/get-session";
 import { getRoomByToken } from "@/server/rooms/get-room-by-token";
+import Link from "next/link";
 
 type RoomPageProps = {
   params: Promise<{
@@ -35,6 +36,15 @@ export default async function RoomPage({ params }: RoomPageProps) {
   return (
     <div className="flex h-[calc(100vh-64px)] flex-col p-8">
       <div className="border-b border-[#141414] pb-6">
+        <Link
+          href="/dashboard"
+          className="group inline-flex items-center gap-2 rounded-lg px-0 py-1 text-sm font-medium text-neutral-500 transition-all hover:text-white"
+        >
+          <span className="transition-transform duration-200 group-hover:-translate-x-0.5">
+            ←
+          </span>
+          <span>Back to dashboard</span>
+        </Link>
         <p className="text-xs uppercase tracking-[0.3em] text-neutral-600">
           Active room
         </p>
