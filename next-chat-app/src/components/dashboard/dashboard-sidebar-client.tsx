@@ -6,6 +6,8 @@ import { Room } from "@/generated/prisma/client";
 
 import { CreateRoomModal } from "@/components/rooms/create-room-modal";
 
+import Link from "next/link";
+
 type DashboardSidebarClientProps = {
   rooms: Room[];
 };
@@ -90,8 +92,9 @@ export function DashboardSidebarClient({ rooms }: DashboardSidebarClientProps) {
               </div>
             ) : (
               rooms.map((room) => (
-                <button
+                <Link
                   key={room.id}
+                  href={`/dashboard/room/${room.token}`}
                   className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition hover:bg-[#111111]"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#141414] text-sm text-neutral-500">
@@ -107,17 +110,10 @@ export function DashboardSidebarClient({ rooms }: DashboardSidebarClientProps) {
                       {room.isDestructible ? "Destructible" : "Persistent"}
                     </p>
                   </div>
-                </button>
+                </Link>
               ))
             )}
           </div>
-        </div>
-
-        <div className="px-5 pb-5 pt-4">
-          <button className="flex h-11 items-center gap-3 rounded-xl px-3 text-sm text-neutral-500 transition hover:bg-[#111111] hover:text-white">
-            <span>⚙</span>
-            Settings
-          </button>
         </div>
       </aside>
     </>

@@ -20,7 +20,7 @@ export async function createRoom({ name, isDestructible }: CreateRoomData) {
     };
   }
 
-  const token = crypto.randomBytes(6).toString("hex");
+  const token = crypto.randomBytes(12).toString("hex");
 
   const room = await prisma.room.create({
     data: {
