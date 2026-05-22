@@ -56,11 +56,38 @@ export default async function RoomPage({ params }: RoomPageProps) {
         </p>
       </div>
 
-      <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <p className="text-5xl text-neutral-800">#</p>
+      <div className="flex-1 overflow-y-auto py-6">
+        <div className="mx-auto flex max-w-4xl flex-col gap-4">
+          {room.messages.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center py-20">
+              <div className="text-center">
+                <p className="text-5xl text-neutral-800">#</p>
 
-          <p className="mt-6 text-neutral-500">Messaging system coming next.</p>
+                <p className="mt-6 text-neutral-500">No messages yet.</p>
+              </div>
+            </div>
+          ) : (
+            room.messages.map((message) => (
+              <div
+                key={message.id}
+                className="rounded-2xl border border-[#141414] bg-[#0a0a0a] p-4"
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <p className="text-sm font-medium text-white">
+                    {message.sender.name}
+                  </p>
+
+                  <p className="text-xs text-neutral-600">
+                    {message.createdAt.toLocaleTimeString()}
+                  </p>
+                </div>
+
+                <p className="text-sm leading-relaxed text-neutral-300">
+                  {message.content}
+                </p>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
