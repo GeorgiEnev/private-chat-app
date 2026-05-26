@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { MessageInput } from "@/components/messages/message-input";
 import { getSession } from "@/server/auth/get-session";
 import { getRoomByToken } from "@/server/rooms/get-room-by-token";
+import { MemberListItem } from "@/components/rooms/member-list-item";
 
 type RoomPageProps = {
   params: Promise<{
@@ -114,11 +115,14 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
         <div className="mt-5 space-y-2">
           {room.members.map((member) => (
-            <div
-              key={member.id}
-              className="rounded-xl bg-[#1c1c1c] px-3 py-3 text-sm text-neutral-400"
-            >
-              Member
+            <div key={member.id}>
+              {room.members.map((member) => (
+                <MemberListItem
+                  key={member.id}
+                  member={member}
+                  isOwner={member.userId === room.ownerId}
+                />
+              ))}
             </div>
           ))}
         </div>

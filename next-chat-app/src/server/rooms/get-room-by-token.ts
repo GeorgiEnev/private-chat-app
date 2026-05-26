@@ -7,7 +7,11 @@ export async function getRoomByToken(token: string) {
     },
 
     include: {
-      members: true,
+      members: {
+        include: {
+          user: true,
+        },
+      },
 
       messages: {
         include: {
