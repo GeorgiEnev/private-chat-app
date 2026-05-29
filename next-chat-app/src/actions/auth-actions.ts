@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { validateSignupInput } from "@/lib/validators/auth-validator";
 
 type SignUpData = {
   username: string;
@@ -9,12 +10,25 @@ type SignUpData = {
 };
 
 export async function signUpUser({ username, email, password }: SignUpData) {
+  const validationResult = validateSignupInput({
+    username,
+    email,
+    password,
+  });
+
+  if (!validationResult.success) {
+    return {
+      success: false,
+      error: validationResult.error ?? "Invalid signup data.",
+    };
+  }
+
   try {
     const response = await auth.api.signUpEmail({
       body: {
-        email,
+        email: email.trim(),
         password,
-        name: username,
+        name: username.trim(),
       },
     });
 

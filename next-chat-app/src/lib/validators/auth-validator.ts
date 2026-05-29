@@ -3,6 +3,8 @@ type ValidationResult = {
   error?: string;
 };
 
+export const USERNAME_MAX_LENGTH = 30;
+
 function isValidEmail(email: string) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,6 +34,13 @@ export function validateSignupInput({
     return {
       success: false,
       error: "Username must be at least 3 characters.",
+    };
+  }
+
+  if (trimmedUsername.length > USERNAME_MAX_LENGTH) {
+    return {
+      success: false,
+      error: `Username must be ${USERNAME_MAX_LENGTH} characters or less.`,
     };
   }
 

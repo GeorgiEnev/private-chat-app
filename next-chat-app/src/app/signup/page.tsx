@@ -7,7 +7,10 @@ import { useState } from "react";
 import { signUpUser } from "@/actions/auth-actions";
 import { AuthCard } from "@/components/auth/auth-card";
 import { InputField } from "@/components/auth/input-field";
-import { validateSignupInput } from "@/lib/validators/auth-validator";
+import {
+  USERNAME_MAX_LENGTH,
+  validateSignupInput,
+} from "@/lib/validators/auth-validator";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -75,6 +78,8 @@ export default function SignUpPage() {
           <InputField
             label="Username"
             placeholder="Enter your username"
+            maxLength={USERNAME_MAX_LENGTH}
+            helperText={`Username must be ${USERNAME_MAX_LENGTH} characters or less!`}
             value={username}
             onChange={setUsername}
           />
