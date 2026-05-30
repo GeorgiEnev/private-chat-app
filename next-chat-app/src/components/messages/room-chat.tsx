@@ -168,7 +168,7 @@ export function RoomChat({
                   </p>
 
                   <p className="text-xs text-neutral-700">
-                    {new Date(message.createdAt).toLocaleTimeString()}
+                    {formatMessageTime(message.createdAt)}
                   </p>
                 </div>
 
@@ -186,4 +186,13 @@ export function RoomChat({
       <MessageInput roomId={roomId} onMessageCreated={appendMessages} />
     </main>
   );
+}
+
+function formatMessageTime(createdAt: string) {
+  const date = new Date(createdAt);
+
+  return `${date.getUTCHours().toString().padStart(2, "0")}:${date
+    .getUTCMinutes()
+    .toString()
+    .padStart(2, "0")} UTC`;
 }
