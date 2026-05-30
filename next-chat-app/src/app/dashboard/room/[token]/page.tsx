@@ -115,15 +115,11 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
         <div className="mt-5 space-y-2">
           {room.members.map((member) => (
-            <div key={member.id}>
-              {room.members.map((member) => (
-                <MemberListItem
-                  key={member.id}
-                  member={member}
-                  isOwner={member.userId === room.ownerId}
-                />
-              ))}
-            </div>
+            <MemberListItem
+              key={member.id}
+              member={member}
+              isOwner={member.userId === room.ownerId}
+            />
           ))}
         </div>
       </aside>

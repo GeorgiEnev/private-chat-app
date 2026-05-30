@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Room } from "@/generated/prisma/client";
 
 import { CreateRoomModal } from "@/components/rooms/create-room-modal";
+import { JoinRoomModal } from "@/components/rooms/join-room-modal";
 
 import Link from "next/link";
 
@@ -14,12 +15,18 @@ type DashboardSidebarClientProps = {
 
 export function DashboardSidebarClient({ rooms }: DashboardSidebarClientProps) {
   const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
+  const [isJoinRoomOpen, setIsJoinRoomOpen] = useState(false);
 
   return (
     <>
       <CreateRoomModal
         isOpen={isCreateRoomOpen}
         onClose={() => setIsCreateRoomOpen(false)}
+      />
+
+      <JoinRoomModal
+        isOpen={isJoinRoomOpen}
+        onClose={() => setIsJoinRoomOpen(false)}
       />
 
       <aside className="flex h-screen w-260px flex-col bg-[#070707]">
@@ -60,7 +67,10 @@ export function DashboardSidebarClient({ rooms }: DashboardSidebarClientProps) {
               Dashboard
             </button>
 
-            <button className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-neutral-500 transition hover:bg-[#111111] hover:text-white">
+            <button
+              onClick={() => setIsJoinRoomOpen(true)}
+              className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-neutral-500 transition hover:bg-[#111111] hover:text-white"
+            >
               <span>✦</span>
               Join room
             </button>
