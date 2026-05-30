@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { RoomChat } from "@/components/messages/room-chat";
+import { CopyInviteToken } from "@/components/rooms/copy-invite-token";
 import { getSession } from "@/server/auth/get-session";
 import { getRoomByToken } from "@/server/rooms/get-room-by-token";
 import { MemberListItem } from "@/components/rooms/member-list-item";
@@ -51,9 +52,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
             Invite token
           </p>
 
-          <p className="mt-3 break-all font-mono text-sm text-neutral-400">
-            {room.token}
-          </p>
+          <CopyInviteToken token={room.token} />
         </div>
       </aside>
 
