@@ -77,6 +77,7 @@ model Room {
   name           String
   token          String   @unique
   isDestructible Boolean  @default(false)
+  expiresAt      DateTime?
 
   ownerId        String
   owner          User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -86,6 +87,8 @@ model Room {
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([expiresAt])
 }
 
 model RoomMember {

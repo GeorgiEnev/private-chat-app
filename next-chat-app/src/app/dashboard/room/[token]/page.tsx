@@ -66,6 +66,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         roomId={room.id}
         roomName={room.name}
         roomToken={room.token}
+        expiresAt={room.expiresAt?.toISOString() ?? null}
         initialMessages={room.messages.map((message) => ({
           id: message.id,
           content: message.content,

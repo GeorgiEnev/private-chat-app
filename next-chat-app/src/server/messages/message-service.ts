@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { deleteExpiredRoom } from "@/server/rooms/room-expiry";
 
 export const MESSAGE_MAX_LENGTH = 2_000;
 export const MESSAGE_PAGE_SIZE = 50;
@@ -76,10 +77,16 @@ export async function createRoomMessageForMember({
     },
     select: {
       id: true,
+      room: {
+        select: {
+          id: true,
+          expiresAt: true,
+        },
+      },
     },
   });
 
-  if (!membership) {
+  if (!membership || (await deleteExpiredRoom(membership.room))) {
     return {
       success: false,
       error: "Room not found.",
@@ -125,6 +132,7 @@ export async function getRoomMessagesForMember({
     },
     select: {
       id: true,
+      expiresAt: true,
       members: {
         where: {
           userId,
@@ -136,7 +144,7 @@ export async function getRoomMessagesForMember({
     },
   });
 
-  if (!room || room.members.length === 0) {
+  if (!room || room.members.length === 0 || (await deleteExpiredRoom(room))) {
     return {
       success: false as const,
       error: "Room not found.",

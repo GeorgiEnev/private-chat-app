@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { CreateRoomForm } from "./create-room-form";
-
-import { useRouter } from "next/navigation";
+import { RoomExpiryCountdown } from "./room-expiry-countdown";
 
 type CreateRoomModalProps = {
   isOpen: boolean;
@@ -16,6 +16,7 @@ type CreatedRoom = {
   name: string;
   token: string;
   isDestructible: boolean;
+  expiresAt: Date | string | null;
 };
 
 export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
@@ -80,6 +81,12 @@ export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
                 {createdRoom.token}
               </p>
             </div>
+
+            {createdRoom.expiresAt && (
+              <RoomExpiryCountdown
+                expiresAt={new Date(createdRoom.expiresAt).toISOString()}
+              />
+            )}
 
             <div className="flex gap-3">
               <button

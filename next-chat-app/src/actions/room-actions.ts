@@ -4,14 +4,19 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
+import {
+  getRoomExpiresAt,
+  isValidRoomExpiryDuration,
+  type RoomExpiryDuration,
+} from "@/lib/rooms/room-expiry";
 import { getSession } from "@/server/auth/get-session";
 
 type CreateRoomData = {
   name: string;
-  isDestructible: boolean;
+  expiresIn: RoomExpiryDuration | null;
 };
 
-export async function createRoom({ name, isDestructible }: CreateRoomData) {
+export async function createRoom({ name, expiresIn }: CreateRoomData) {
   const session = await getSession();
 
   if (!session?.user) {
@@ -21,13 +26,22 @@ export async function createRoom({ name, isDestructible }: CreateRoomData) {
     };
   }
 
+  if (!isValidRoomExpiryDuration(expiresIn)) {
+    return {
+      success: false,
+      error: "Room lifetime must be between 5 minutes and 30 days.",
+    };
+  }
+
   const token = crypto.randomBytes(8).toString("hex");
+  const expiresAt = getRoomExpiresAt(expiresIn);
 
   const room = await prisma.room.create({
     data: {
       name,
       token,
-      isDestructible,
+      isDestructible: expiresAt !== null,
+      expiresAt,
       ownerId: session.user.id,
 
       members: {

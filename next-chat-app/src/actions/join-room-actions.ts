@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/server/auth/get-session";
+import { deleteExpiredRoom } from "@/server/rooms/room-expiry";
 
 type JoinRoomInput = {
   token: string;
@@ -36,6 +37,15 @@ export async function joinRoom({ token }: JoinRoomInput) {
   });
 
   if (!room) {
+    return {
+      success: false,
+      error: "Room not found.",
+    };
+  }
+
+  const wasDeleted = await deleteExpiredRoom(room);
+
+  if (wasDeleted) {
     return {
       success: false,
       error: "Room not found.",

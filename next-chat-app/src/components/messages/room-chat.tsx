@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { MessageInput } from "@/components/messages/message-input";
+import { RoomExpiryCountdown } from "@/components/rooms/room-expiry-countdown";
 import type { SerializedMessage } from "@/server/messages/message-service";
 
 const POLL_INTERVAL_MS = 2_000;
@@ -22,6 +23,7 @@ type RoomChatProps = {
   roomId: string;
   roomName: string;
   roomToken: string;
+  expiresAt: string | null;
   initialMessages: SerializedMessage[];
 };
 
@@ -30,6 +32,7 @@ export function RoomChat({
   roomId,
   roomName,
   roomToken,
+  expiresAt,
   initialMessages,
 }: RoomChatProps) {
   const router = useRouter();
@@ -160,7 +163,7 @@ export function RoomChat({
   }, [messages]);
 
   return (
-    <main className="flex min-w-0 flex-col border-r border-[#111111]">
+    <main className="relative flex min-w-0 flex-col border-r border-[#111111]">
       <header className="flex h-16 items-center justify-between border-b border-[#111111] px-6">
         <div>
           <h2 className="text-sm font-medium text-white">{roomName}</h2>
@@ -168,6 +171,12 @@ export function RoomChat({
           <p className="text-xs text-neutral-600">{messageCountLabel}</p>
         </div>
       </header>
+
+      {expiresAt && (
+        <div className="absolute right-6 top-5">
+          <RoomExpiryCountdown expiresAt={expiresAt} />
+        </div>
+      )}
 
       <div
         ref={scrollContainerRef}
