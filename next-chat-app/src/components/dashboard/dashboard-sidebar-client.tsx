@@ -62,7 +62,7 @@ export function DashboardSidebarClient({ rooms }: DashboardSidebarClientProps) {
 
             <button className="flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-neutral-500 transition hover:bg-[#111111] hover:text-white">
               <span>✦</span>
-              Invitations
+              Join room
             </button>
           </nav>
         </div>
