@@ -1,17 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
+import { DEFAULT_AVATAR_COLOR, getAvatarColorClass } from "@/lib/avatar-colors";
 
 type DashboardProfileMenuProps = {
   username: string;
   email?: string | null;
+  avatarColor?: string | null;
 };
 
 export function DashboardProfileMenu({
   username,
   email,
+  avatarColor = DEFAULT_AVATAR_COLOR,
 }: DashboardProfileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -54,9 +58,7 @@ export function DashboardProfileMenu({
         onClick={() => setIsOpen((current) => !current)}
         className="flex items-center gap-2 rounded-xl bg-[#101010] px-2 py-2 transition hover:bg-[#151515] focus:outline-none focus:ring-2 focus:ring-white/15"
       >
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-lime-800 text-xs font-semibold text-white">
-          {initials}
-        </div>
+        <Avatar avatarColor={avatarColor} initials={initials} size="sm" />
 
         <span className="max-w-40 truncate text-sm text-neutral-400">
           {username}
@@ -71,9 +73,7 @@ export function DashboardProfileMenu({
           className="absolute right-0 top-14 z-50 w-72 rounded-2xl border border-[#161616] bg-[#0b0b0b] p-2 shadow-2xl"
         >
           <div className="flex items-center gap-3 rounded-xl bg-[#111111] px-3 py-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lime-800 text-xs font-semibold text-white">
-              {initials}
-            </div>
+            <Avatar avatarColor={avatarColor} initials={initials} size="md" />
 
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-white">
@@ -89,14 +89,15 @@ export function DashboardProfileMenu({
           </div>
 
           <div className="mt-2 space-y-1">
-            <button
-              type="button"
+            <Link
+              href="/dashboard/profile"
               role="menuitem"
+              onClick={() => setIsOpen(false)}
               className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-400 transition hover:bg-[#111111] hover:text-white"
             >
               <ProfileIcon />
               <span>Profile</span>
-            </button>
+            </Link>
 
             <button
               type="button"
@@ -113,6 +114,28 @@ export function DashboardProfileMenu({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function Avatar({
+  avatarColor,
+  initials,
+  size,
+}: {
+  avatarColor?: string | null;
+  initials: string;
+  size: "sm" | "md";
+}) {
+  const sizeClass = size === "sm" ? "h-9 w-9" : "h-10 w-10";
+
+  return (
+    <div
+      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-xl text-xs font-semibold text-white ${getAvatarColorClass(
+        avatarColor,
+      )}`}
+    >
+      {initials}
     </div>
   );
 }

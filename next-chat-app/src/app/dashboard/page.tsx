@@ -1,6 +1,8 @@
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import { DashboardTopbar } from "@/components/dashboard/dashboard-topbar";
 
+import { DEFAULT_AVATAR_COLOR } from "@/lib/avatar-colors";
+import { prisma } from "@/lib/prisma";
 import { getSession } from "@/server/auth/get-session";
 
 export default async function DashboardPage() {
@@ -8,10 +10,24 @@ export default async function DashboardPage() {
 
   const username = session?.user?.name ?? "User";
   const email = session?.user?.email ?? null;
+  const userProfile = session?.user
+    ? await prisma.user.findUnique({
+        where: {
+          id: session.user.id,
+        },
+        select: {
+          avatarColor: true,
+        },
+      })
+    : null;
 
   return (
     <DashboardLayout>
-      <DashboardTopbar username={username} email={email} />
+      <DashboardTopbar
+        username={username}
+        email={email}
+        avatarColor={userProfile?.avatarColor ?? DEFAULT_AVATAR_COLOR}
+      />
 
       <section className="flex h-[calc(100vh-80px)] items-center justify-center">
         <div className="flex flex-col items-center text-center">

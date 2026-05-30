@@ -1,4 +1,5 @@
-import { RoomMember, User } from "@/generated/prisma/client"; 
+import { RoomMember, User } from "@/generated/prisma/client";
+import { getAvatarColorClass } from "@/lib/avatar-colors";
 
 type MemberListItemProps = {
   member: RoomMember & {
@@ -18,7 +19,11 @@ export function MemberListItem({ member, isOwner }: MemberListItemProps) {
 
   return (
     <div className="flex items-center gap-3 rounded-xl px-2 py-2 transition bg-[#1d1d1d] hover:bg-[#161616]">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#005615] text-[10px] font-semibold text-white">
+      <div
+        className={`flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-semibold text-white ${getAvatarColorClass(
+          member.user.avatarColor,
+        )}`}
+      >
         {initials}
       </div>
 

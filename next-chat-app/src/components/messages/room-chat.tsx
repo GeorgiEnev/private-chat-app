@@ -225,7 +225,7 @@ export function RoomChat({
                   </div>
 
                   <p
-                    className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${
+                    className={`whitespace-pre-wrap wrap-break-words text-sm leading-relaxed ${
                       isOwnMessage ? "text-neutral-200" : "text-neutral-300"
                     }`}
                   >
