@@ -136,12 +136,6 @@ export function RoomChat({
 
           <p className="text-xs text-neutral-600">{messageCountLabel}</p>
         </div>
-
-        <p className="text-xs text-neutral-600">
-          {connectionState === "live" && "live"}
-          {connectionState === "syncing" && "syncing"}
-          {connectionState === "offline" && "reconnecting"}
-        </p>
       </header>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-6">
