@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { RoomChat } from "@/components/messages/room-chat";
 import { CopyInviteToken } from "@/components/rooms/copy-invite-token";
+import { DeleteRoomButton } from "@/components/rooms/delete-room-button";
 import { getSession } from "@/server/auth/get-session";
 import { getRoomByToken } from "@/server/rooms/get-room-by-token";
 import { MemberListItem } from "@/components/rooms/member-list-item";
@@ -36,6 +37,8 @@ export default async function RoomPage({ params }: RoomPageProps) {
     redirect("/dashboard");
   }
 
+  const isOwner = room.ownerId === session.user.id;
+
   return (
     <div className="grid h-screen grid-cols-[240px_1fr_220px] bg-black text-white">
       <aside className="border-r border-[#111111] bg-[#070707] px-5 py-5">
@@ -54,6 +57,8 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
           <CopyInviteToken token={room.token} />
         </div>
+
+        {isOwner && <DeleteRoomButton roomId={room.id} roomName={room.name} />}
       </aside>
 
       <RoomChat
