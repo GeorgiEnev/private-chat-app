@@ -98,15 +98,6 @@ export function DashboardProfileMenu({
               <ProfileIcon />
               <span>Profile</span>
             </Link>
-
-            <button
-              type="button"
-              role="menuitem"
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-400 transition hover:bg-[#111111] hover:text-white"
-            >
-              <SettingsIcon />
-              <span>Settings</span>
-            </button>
           </div>
 
           <div className="mt-2 border-t border-[#141414] pt-2">
@@ -179,29 +170,6 @@ function ProfileIcon() {
         stroke="currentColor"
         strokeLinecap="round"
         strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-function SettingsIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 20 20"
-      className="h-4 w-4"
-      fill="none"
-    >
-      <path
-        d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M16.5 10a6.6 6.6 0 0 0-.08-1l1.33-1.04-1.5-2.6-1.58.64a6.5 6.5 0 0 0-1.73-1L12.7 3.3H9.7L9.46 5a6.5 6.5 0 0 0-1.73 1l-1.58-.64-1.5 2.6L5.98 9a6.63 6.63 0 0 0 0 2l-1.33 1.04 1.5 2.6 1.58-.64a6.5 6.5 0 0 0 1.73 1l.24 1.7h3l.24-1.7a6.5 6.5 0 0 0 1.73-1l1.58.64 1.5-2.6L16.42 11c.05-.33.08-.66.08-1Z"
-        stroke="currentColor"
-        strokeLinejoin="round"
-        strokeWidth="1.2"
       />
     </svg>
   );
