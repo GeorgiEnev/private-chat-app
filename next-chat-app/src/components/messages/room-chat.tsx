@@ -1,11 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import { MessageInput } from "@/components/messages/message-input";
 import type { SerializedMessage } from "@/server/messages/message-service";
 
 const POLL_INTERVAL_MS = 2_000;
+
+const emptySubscribe = () => () => {};
 
 type RoomChatProps = {
   currentUserId: string;
@@ -23,6 +32,11 @@ export function RoomChat({
   initialMessages,
 }: RoomChatProps) {
   const [messages, setMessages] = useState(initialMessages);
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -177,9 +191,13 @@ export function RoomChat({
                       {isOwnMessage ? "You" : message.sender.name}
                     </p>
 
-                    <p className="text-xs text-neutral-700">
-                      {formatMessageTime(message.createdAt)}
-                    </p>
+                    <time
+                      dateTime={message.createdAt}
+                      title={formatMessageDateTime(message.createdAt, isClient)}
+                      className="text-xs text-neutral-700"
+                    >
+                      {formatMessageTime(message.createdAt, isClient)}
+                    </time>
                   </div>
 
                   <p
@@ -203,11 +221,31 @@ export function RoomChat({
   );
 }
 
-function formatMessageTime(createdAt: string) {
+function formatMessageTime(createdAt: string, isClient: boolean) {
   const date = new Date(createdAt);
+
+  if (isClient) {
+    return date.toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
 
   return `${date.getUTCHours().toString().padStart(2, "0")}:${date
     .getUTCMinutes()
     .toString()
     .padStart(2, "0")} UTC`;
+}
+
+function formatMessageDateTime(createdAt: string, isClient: boolean) {
+  const date = new Date(createdAt);
+
+  if (isClient) {
+    return date.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  }
+
+  return date.toISOString();
 }
