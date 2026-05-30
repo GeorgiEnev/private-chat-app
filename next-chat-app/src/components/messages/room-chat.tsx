@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -31,6 +32,8 @@ export function RoomChat({
   roomToken,
   initialMessages,
 }: RoomChatProps) {
+  const router = useRouter();
+
   const [messages, setMessages] = useState(initialMessages);
   const isClient = useSyncExternalStore(
     emptySubscribe,
@@ -92,6 +95,18 @@ export function RoomChat({
           },
         );
 
+        if (response.status === 404) {
+          router.replace("/dashboard");
+          router.refresh();
+          return;
+        }
+
+        if (response.status === 401) {
+          router.replace("/login");
+          router.refresh();
+          return;
+        }
+
         if (!response.ok) {
           throw new Error("Failed to fetch room messages.");
         }
@@ -105,7 +120,7 @@ export function RoomChat({
         isFetchingRef.current = false;
       }
     },
-    [appendMessages, latestMessageId, roomToken],
+    [appendMessages, latestMessageId, roomToken, router],
   );
 
   useEffect(() => {
