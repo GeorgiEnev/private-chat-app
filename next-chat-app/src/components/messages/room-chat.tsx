@@ -138,7 +138,10 @@ export function RoomChat({
         </div>
       </header>
 
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-6">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto px-6 py-6"
+      >
         <div className="mx-auto flex max-w-3xl flex-col gap-1">
           {messages.length === 0 ? (
             <div className="flex min-h-[50vh] items-center justify-center">
@@ -166,7 +169,7 @@ export function RoomChat({
                   </p>
                 </div>
 
-                <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-neutral-300">
+                <p className="whitespace-pre-wrap wrap-break-word text-sm leading-relaxed text-neutral-300">
                   {message.content}
                 </p>
               </div>
