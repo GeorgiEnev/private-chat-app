@@ -1,8 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-
 import { getSession } from "@/server/auth/get-session";
+import { createRoomMessageForMember } from "@/server/messages/message-service";
 
 type CreateMessageInput = {
   roomId: string;
@@ -19,26 +18,19 @@ export async function createMessage({ roomId, content }: CreateMessageInput) {
     };
   }
 
-  const trimmedContent = content.trim();
-
-  if (!trimmedContent) {
-    return {
-      success: false,
-      error: "Message cannot be empty.",
-    };
-  }
-
-  await prisma.message.create({
-    data: {
-      content: trimmedContent,
-
-      roomId,
-
-      senderId: session.user.id,
-    },
+  const result = await createRoomMessageForMember({
+    roomId,
+    content,
+    senderId: session.user.id,
   });
 
-  return {
-    success: true,
-  };
+  return result.success
+    ? {
+        success: true,
+        message: result.message,
+      }
+    : {
+        success: false,
+        error: result.error,
+      };
 }
