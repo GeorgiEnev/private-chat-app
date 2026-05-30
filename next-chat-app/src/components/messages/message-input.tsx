@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { createMessage } from "@/actions/message-actions";
+import type { SerializedMessage } from "@/server/messages/message-service";
 
 type MessageInputProps = {
   roomId: string;
+  onMessageCreated?: (messages: SerializedMessage[]) => void;
 };
 
-export function MessageInput({ roomId }: MessageInputProps) {
+export function MessageInput({ roomId, onMessageCreated }: MessageInputProps) {
   const router = useRouter();
 
   const [content, setContent] = useState("");
@@ -40,7 +42,14 @@ export function MessageInput({ roomId }: MessageInputProps) {
       }
 
       setContent("");
-      router.refresh();
+
+      if (result.message) {
+        onMessageCreated?.([result.message]);
+      }
+
+      if (!onMessageCreated) {
+        router.refresh();
+      }
     } catch (error) {
       console.error(error);
       setError("Something went wrong.");

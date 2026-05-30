@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { MessageInput } from "@/components/messages/message-input";
+import { RoomChat } from "@/components/messages/room-chat";
 import { getSession } from "@/server/auth/get-session";
 import { getRoomByToken } from "@/server/rooms/get-room-by-token";
 import { MemberListItem } from "@/components/rooms/member-list-item";
@@ -57,56 +57,21 @@ export default async function RoomPage({ params }: RoomPageProps) {
         </div>
       </aside>
 
-      <main className="flex min-w-0 flex-col border-r border-[#111111]">
-        <header className="flex h-16 items-center justify-between border-b border-[#111111] px-6">
-          <div>
-            <h2 className="text-sm font-medium text-white">{room.name}</h2>
-
-            <p className="text-xs text-neutral-600">
-              {room.messages.length} messages
-            </p>
-          </div>
-        </header>
-
-        <div className="flex-1 overflow-y-auto px-6 py-6">
-          <div className="mx-auto flex max-w-3xl flex-col gap-1">
-            {room.messages.length === 0 ? (
-              <div className="flex min-h-[50vh] items-center justify-center">
-                <div className="text-center">
-                  <p className="text-5xl text-neutral-800">#</p>
-
-                  <p className="mt-5 text-sm text-neutral-600">
-                    No messages yet.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              room.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className="rounded-xl px-3 py-2 transition hover:bg-[#0d0d0d]"
-                >
-                  <div className="mb-1 flex items-center gap-2">
-                    <p className="text-sm font-medium text-green-700">
-                      {message.sender.name}
-                    </p>
-
-                    <p className="text-xs text-neutral-700">
-                      {message.createdAt.toLocaleTimeString()}
-                    </p>
-                  </div>
-
-                  <p className="text-sm leading-relaxed text-neutral-300">
-                    {message.content}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <MessageInput roomId={room.id} />
-      </main>
+      <RoomChat
+        roomId={room.id}
+        roomName={room.name}
+        roomToken={room.token}
+        initialMessages={room.messages.map((message) => ({
+          id: message.id,
+          content: message.content,
+          createdAt: message.createdAt.toISOString(),
+          sender: {
+            id: message.sender.id,
+            name: message.sender.name,
+            image: message.sender.image,
+          },
+        }))}
+      />
 
       <aside className="bg-[#070707] px-5 py-5">
         <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-500">
