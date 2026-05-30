@@ -7,29 +7,26 @@ type CopyInviteTokenProps = {
 };
 
 export function CopyInviteToken({ token }: CopyInviteTokenProps) {
-  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
-    "idle",
-  );
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    if (copyState === "idle") {
+    if (!isCopied) {
       return;
     }
 
     const timeoutId = window.setTimeout(() => {
-      setCopyState("idle");
+      setIsCopied(false);
     }, 1_600);
 
     return () => window.clearTimeout(timeoutId);
-  }, [copyState]);
+  }, [isCopied]);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(token);
-      setCopyState("copied");
+      setIsCopied(true);
     } catch (error) {
       console.error(error);
-      setCopyState("failed");
     }
   }
 
@@ -42,58 +39,30 @@ export function CopyInviteToken({ token }: CopyInviteTokenProps) {
       <button
         type="button"
         onClick={handleCopy}
-        aria-label={copyState === "copied" ? "Invite token copied" : "Copy invite token"}
-        title={copyState === "copied" ? "Copied" : "Copy invite token"}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#202020] bg-[#151515] text-neutral-400 transition hover:border-[#2f2f2f] hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20"
+        aria-label={isCopied ? "Invite token copied" : "Copy invite token"}
+        title={isCopied ? "Copied" : "Copy invite token"}
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-neutral-500 transition hover:bg-[#171717] hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20"
       >
-        {copyState === "copied" ? (
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            className="h-4 w-4 text-green-500"
-            fill="none"
-          >
-            <path
-              d="m5 10 3 3 7-7"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-            />
-          </svg>
-        ) : (
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            className={
-              copyState === "failed" ? "h-4 w-4 text-red-400" : "h-4 w-4"
-            }
-            fill="none"
-          >
-            {copyState === "failed" ? (
-              <path
-                d="M10 6v5m0 3h.01"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="2"
-              />
-            ) : (
-              <>
-                <path
-                  d="M7 5h6m-5 2h5m-5 3h5"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M6 3h8a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-              </>
-            )}
-          </svg>
-        )}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          className="h-4 w-4"
+          fill="none"
+        >
+          <path
+            d="M7 6H5.5A1.5 1.5 0 0 0 4 7.5v8A1.5 1.5 0 0 0 5.5 17h7A1.5 1.5 0 0 0 14 15.5V14"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M8 3.5A1.5 1.5 0 0 1 9.5 2h5A1.5 1.5 0 0 1 16 3.5v7A1.5 1.5 0 0 1 14.5 12h-5A1.5 1.5 0 0 1 8 10.5v-7Z"
+            stroke="currentColor"
+            strokeLinejoin="round"
+            strokeWidth="1.5"
+          />
+        </svg>
       </button>
     </div>
   );

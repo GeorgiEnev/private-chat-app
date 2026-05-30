@@ -8,6 +8,7 @@ import type { SerializedMessage } from "@/server/messages/message-service";
 const POLL_INTERVAL_MS = 2_000;
 
 type RoomChatProps = {
+  currentUserId: string;
   roomId: string;
   roomName: string;
   roomToken: string;
@@ -15,15 +16,14 @@ type RoomChatProps = {
 };
 
 export function RoomChat({
+  currentUserId,
   roomId,
   roomName,
   roomToken,
   initialMessages,
 }: RoomChatProps) {
   const [messages, setMessages] = useState(initialMessages);
-  const [connectionState, setConnectionState] = useState<
-    "live" | "syncing" | "offline"
-  >("live");
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
@@ -33,24 +33,29 @@ export function RoomChat({
     return messages.length === 1 ? "1 message" : `${messages.length} messages`;
   }, [messages.length]);
 
-  const appendMessages = useCallback((incomingMessages: SerializedMessage[]) => {
-    if (incomingMessages.length === 0) {
-      return;
-    }
-
-    setMessages((currentMessages) => {
-      const existingIds = new Set(currentMessages.map((message) => message.id));
-      const freshMessages = incomingMessages.filter(
-        (message) => !existingIds.has(message.id),
-      );
-
-      if (freshMessages.length === 0) {
-        return currentMessages;
+  const appendMessages = useCallback(
+    (incomingMessages: SerializedMessage[]) => {
+      if (incomingMessages.length === 0) {
+        return;
       }
 
-      return [...currentMessages, ...freshMessages];
-    });
-  }, []);
+      setMessages((currentMessages) => {
+        const existingIds = new Set(
+          currentMessages.map((message) => message.id),
+        );
+        const freshMessages = incomingMessages.filter(
+          (message) => !existingIds.has(message.id),
+        );
+
+        if (freshMessages.length === 0) {
+          return currentMessages;
+        }
+
+        return [...currentMessages, ...freshMessages];
+      });
+    },
+    [],
+  );
 
   const fetchNewMessages = useCallback(
     async (signal?: AbortSignal) => {
@@ -62,7 +67,6 @@ export function RoomChat({
         ? `?after=${encodeURIComponent(latestMessageId)}`
         : "";
 
-      setConnectionState("syncing");
       isFetchingRef.current = true;
 
       try {
@@ -83,7 +87,6 @@ export function RoomChat({
         };
 
         appendMessages(data.messages);
-        setConnectionState("live");
       } finally {
         isFetchingRef.current = false;
       }
@@ -101,7 +104,6 @@ export function RoomChat({
         }
 
         console.error(error);
-        setConnectionState("offline");
       });
     }, POLL_INTERVAL_MS);
 
@@ -154,26 +156,42 @@ export function RoomChat({
               </div>
             </div>
           ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className="rounded-xl px-3 py-2 transition hover:bg-[#0d0d0d]"
-              >
-                <div className="mb-1 flex items-center gap-2">
-                  <p className="text-sm font-medium text-green-700">
-                    {message.sender.name}
-                  </p>
+            messages.map((message) => {
+              const isOwnMessage = message.sender.id === currentUserId;
 
-                  <p className="text-xs text-neutral-700">
-                    {formatMessageTime(message.createdAt)}
+              return (
+                <div
+                  key={message.id}
+                  className={`rounded-xl px-3 py-2 transition ${
+                    isOwnMessage
+                      ? "bg-[#09110b]"
+                      : "hover:bg-[#0d0d0d]"
+                  }`}
+                >
+                  <div className="mb-1 flex items-center gap-2">
+                    <p
+                      className={`text-sm font-medium ${
+                        isOwnMessage ? "text-green-500" : "text-green-700"
+                      }`}
+                    >
+                      {isOwnMessage ? "You" : message.sender.name}
+                    </p>
+
+                    <p className="text-xs text-neutral-700">
+                      {formatMessageTime(message.createdAt)}
+                    </p>
+                  </div>
+
+                  <p
+                    className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${
+                      isOwnMessage ? "text-neutral-200" : "text-neutral-300"
+                    }`}
+                  >
+                    {message.content}
                   </p>
                 </div>
-
-                <p className="whitespace-pre-wrap wrap-break-word text-sm leading-relaxed text-neutral-300">
-                  {message.content}
-                </p>
-              </div>
-            ))
+              );
+            })
           )}
 
           <div ref={bottomRef} />

@@ -57,6 +57,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
       </aside>
 
       <RoomChat
+        currentUserId={session.user.id}
         roomId={room.id}
         roomName={room.name}
         roomToken={room.token}
