@@ -7,10 +7,11 @@ export default async function DashboardPage() {
   const session = await getSession();
 
   const username = session?.user?.name ?? "User";
+  const email = session?.user?.email ?? null;
 
   return (
     <DashboardLayout>
-      <DashboardTopbar username={username} />
+      <DashboardTopbar username={username} email={email} />
 
       <section className="flex h-[calc(100vh-80px)] items-center justify-center">
         <div className="flex flex-col items-center text-center">

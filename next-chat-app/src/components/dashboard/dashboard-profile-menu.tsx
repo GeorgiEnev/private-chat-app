@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 
 type DashboardProfileMenuProps = {
   username: string;
+  email?: string | null;
 };
 
-export function DashboardProfileMenu({ username }: DashboardProfileMenuProps) {
+export function DashboardProfileMenu({
+  username,
+  email,
+}: DashboardProfileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const initials = username
     .split(" ")
@@ -18,34 +23,88 @@ export function DashboardProfileMenu({ username }: DashboardProfileMenuProps) {
     .slice(0, 2)
     .toUpperCase();
 
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   return (
-    <div className="relative">
+    <div ref={menuRef} className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-xl bg-[#101010] px-2 py-2 transition hover:bg-[#151515]"
+        type="button"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
+        onClick={() => setIsOpen((current) => !current)}
+        className="flex items-center gap-2 rounded-xl bg-[#101010] px-2 py-2 transition hover:bg-[#151515] focus:outline-none focus:ring-2 focus:ring-white/15"
       >
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-lime-800 text-xs font-semibold text-white">
           {initials}
         </div>
 
-        <span className="text-sm text-neutral-400">{username}</span>
+        <span className="max-w-40 truncate text-sm text-neutral-400">
+          {username}
+        </span>
 
-        <span className="text-xs text-neutral-600">▼</span>
+        <ChevronDownIcon isOpen={isOpen} />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-14 w-64 rounded-2xl bg-[#0b0b0b] p-2 shadow-2xl">
+        <div
+          role="menu"
+          className="absolute right-0 top-14 z-50 w-72 rounded-2xl border border-[#161616] bg-[#0b0b0b] p-2 shadow-2xl"
+        >
+          <div className="flex items-center gap-3 rounded-xl bg-[#111111] px-3 py-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lime-800 text-xs font-semibold text-white">
+              {initials}
+            </div>
 
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-white">
+                {username}
+              </p>
 
-          <div className="space-y-1">
-            <button className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-400 transition hover:bg-[#111111] hover:text-white">
-              <span>○</span>
-              Profile
+              {email && (
+                <p className="mt-0.5 truncate text-xs text-neutral-600">
+                  {email}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-2 space-y-1">
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-400 transition hover:bg-[#111111] hover:text-white"
+            >
+              <ProfileIcon />
+              <span>Profile</span>
             </button>
 
-            <button className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-400 transition hover:bg-[#111111] hover:text-white">
-              <span>⚙</span>
-              Settings
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-neutral-400 transition hover:bg-[#111111] hover:text-white"
+            >
+              <SettingsIcon />
+              <span>Settings</span>
             </button>
           </div>
 
@@ -55,5 +114,72 @@ export function DashboardProfileMenu({ username }: DashboardProfileMenuProps) {
         </div>
       )}
     </div>
+  );
+}
+
+function ChevronDownIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className={`h-4 w-4 text-neutral-600 transition ${
+        isOpen ? "rotate-180" : ""
+      }`}
+      fill="none"
+    >
+      <path
+        d="m6 8 4 4 4-4"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.7"
+      />
+    </svg>
+  );
+}
+
+function ProfileIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className="h-4 w-4"
+      fill="none"
+    >
+      <path
+        d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M4.5 16.5a5.5 5.5 0 0 1 11 0"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className="h-4 w-4"
+      fill="none"
+    >
+      <path
+        d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M16.5 10a6.6 6.6 0 0 0-.08-1l1.33-1.04-1.5-2.6-1.58.64a6.5 6.5 0 0 0-1.73-1L12.7 3.3H9.7L9.46 5a6.5 6.5 0 0 0-1.73 1l-1.58-.64-1.5 2.6L5.98 9a6.63 6.63 0 0 0 0 2l-1.33 1.04 1.5 2.6 1.58-.64a6.5 6.5 0 0 0 1.73 1l.24 1.7h3l.24-1.7a6.5 6.5 0 0 0 1.73-1l1.58.64 1.5-2.6L16.42 11c.05-.33.08-.66.08-1Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.2"
+      />
+    </svg>
   );
 }
