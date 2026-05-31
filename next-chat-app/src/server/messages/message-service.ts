@@ -8,6 +8,8 @@ export type SerializedMessage = {
   id: string;
   content: string;
   createdAt: string;
+  editedAt: string | null;
+  isDeleted: boolean;
   sender: {
     id: string;
     name: string;
@@ -99,6 +101,145 @@ export async function createRoomMessageForMember({
       content: validation.content,
       roomId,
       senderId,
+    },
+    include: {
+      sender: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+    },
+  });
+
+  return {
+    success: true,
+    message: serializeMessage(message),
+  };
+}
+
+export async function updateRoomMessageForSender({
+  messageId,
+  senderId,
+  content,
+}: {
+  messageId: string;
+  senderId: string;
+  content: string;
+}): Promise<MessageResult> {
+  const validation = validateMessageContent(content);
+
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error,
+      status: 400,
+    };
+  }
+
+  const existingMessage = await prisma.message.findFirst({
+    where: {
+      id: messageId,
+      senderId,
+    },
+    include: {
+      room: {
+        select: {
+          id: true,
+          expiresAt: true,
+        },
+      },
+    },
+  });
+
+  if (!existingMessage || (await deleteExpiredRoom(existingMessage.room))) {
+    return {
+      success: false,
+      error: "Message not found.",
+      status: 404,
+    };
+  }
+
+  if (existingMessage.isDeleted) {
+    return {
+      success: false,
+      error: "Deleted messages cannot be edited.",
+      status: 400,
+    };
+  }
+
+  const message = await prisma.message.update({
+    where: {
+      id: existingMessage.id,
+    },
+    data: {
+      content: validation.content,
+      editedAt: new Date(),
+    },
+    include: {
+      sender: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+    },
+  });
+
+  return {
+    success: true,
+    message: serializeMessage(message),
+  };
+}
+
+export async function deleteRoomMessageForSender({
+  messageId,
+  senderId,
+}: {
+  messageId: string;
+  senderId: string;
+}): Promise<MessageResult> {
+  const existingMessage = await prisma.message.findFirst({
+    where: {
+      id: messageId,
+      senderId,
+    },
+    include: {
+      room: {
+        select: {
+          id: true,
+          expiresAt: true,
+        },
+      },
+    },
+  });
+
+  if (!existingMessage || (await deleteExpiredRoom(existingMessage.room))) {
+    return {
+      success: false,
+      error: "Message not found.",
+      status: 404,
+    };
+  }
+
+  if (existingMessage.isDeleted) {
+    return {
+      success: false,
+      error: "Message is already deleted.",
+      status: 400,
+    };
+  }
+
+  const message = await prisma.message.update({
+    where: {
+      id: existingMessage.id,
+    },
+    data: {
+      content: "",
+      editedAt: null,
+      isDeleted: true,
     },
     include: {
       sender: {
@@ -217,6 +358,8 @@ function serializeMessage(message: {
   id: string;
   content: string;
   createdAt: Date;
+  editedAt: Date | null;
+  isDeleted: boolean;
   sender: {
     id: string;
     name: string;
@@ -227,6 +370,8 @@ function serializeMessage(message: {
     id: message.id,
     content: message.content,
     createdAt: message.createdAt.toISOString(),
+    editedAt: message.editedAt?.toISOString() ?? null,
+    isDeleted: message.isDeleted,
     sender: message.sender,
   };
 }

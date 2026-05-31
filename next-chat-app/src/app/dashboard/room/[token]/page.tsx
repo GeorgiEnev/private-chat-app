@@ -71,6 +71,8 @@ export default async function RoomPage({ params }: RoomPageProps) {
           id: message.id,
           content: message.content,
           createdAt: message.createdAt.toISOString(),
+          editedAt: message.editedAt?.toISOString() ?? null,
+          isDeleted: message.isDeleted,
           sender: {
             id: message.sender.id,
             name: message.sender.name,
