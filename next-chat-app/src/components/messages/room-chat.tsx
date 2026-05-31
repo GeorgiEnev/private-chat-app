@@ -45,6 +45,9 @@ export function RoomChat({
   const [openMenuMessageId, setOpenMenuMessageId] = useState<string | null>(
     null,
   );
+  const [confirmingDeleteMessageId, setConfirmingDeleteMessageId] = useState<
+    string | null
+  >(null);
   const [pendingMessageId, setPendingMessageId] = useState<string | null>(null);
   const isClient = useSyncExternalStore(
     emptySubscribe,
@@ -57,8 +60,14 @@ export function RoomChat({
   const isFetchingRef = useRef(false);
 
   const messageCountLabel = useMemo(() => {
-    return messages.length === 1 ? "1 message" : `${messages.length} messages`;
-  }, [messages.length]);
+    const visibleMessageCount = messages.filter((message) => {
+      return !message.isDeleted;
+    }).length;
+
+    return visibleMessageCount === 1
+      ? "1 message"
+      : `${visibleMessageCount} messages`;
+  }, [messages]);
 
   const mergeMessages = useCallback(
     (incomingMessages: SerializedMessage[]) => {
@@ -91,6 +100,7 @@ export function RoomChat({
   function startEditingMessage(message: SerializedMessage) {
     setMessageActionError("");
     setOpenMenuMessageId(null);
+    setConfirmingDeleteMessageId(null);
     setEditingMessageId(message.id);
     setEditingContent(message.content);
   }
@@ -136,10 +146,7 @@ export function RoomChat({
   async function handleDeleteMessage(messageId: string) {
     setMessageActionError("");
     setOpenMenuMessageId(null);
-
-    if (!window.confirm("Delete this message?")) {
-      return;
-    }
+    setConfirmingDeleteMessageId(null);
 
     setPendingMessageId(messageId);
 
@@ -167,8 +174,19 @@ export function RoomChat({
 
   function toggleMessageMenu(messageId: string) {
     setOpenMenuMessageId((currentMessageId) => {
-      return currentMessageId === messageId ? null : messageId;
+      const nextMessageId = currentMessageId === messageId ? null : messageId;
+
+      if (nextMessageId !== messageId) {
+        setConfirmingDeleteMessageId(null);
+      }
+
+      return nextMessageId;
     });
+  }
+
+  function requestDeleteConfirmation(messageId: string) {
+    setMessageActionError("");
+    setConfirmingDeleteMessageId(messageId);
   }
 
   const fetchNewMessages = useCallback(
@@ -295,6 +313,8 @@ export function RoomChat({
               const isEditing = editingMessageId === message.id;
               const isPending = pendingMessageId === message.id;
               const isMenuOpen = openMenuMessageId === message.id;
+              const isConfirmingDelete =
+                confirmingDeleteMessageId === message.id;
 
               return (
                 <div
@@ -348,22 +368,52 @@ export function RoomChat({
                         </button>
 
                         {isMenuOpen && (
-                          <div className="absolute right-0 top-8 z-10 w-32 overflow-hidden rounded-lg border border-[#1c1c1c] bg-[#0b0b0b] py-1 shadow-2xl shadow-black/50">
-                            <button
-                              type="button"
-                              onClick={() => startEditingMessage(message)}
-                              className="block w-full px-3 py-2 text-left text-xs text-neutral-300 transition hover:bg-[#151515] hover:text-white"
-                            >
-                              Edit
-                            </button>
+                          <div className="absolute right-0 top-8 z-10 w-36 overflow-hidden rounded-lg border border-[#1c1c1c] bg-[#0b0b0b] py-1 shadow-2xl shadow-black/50">
+                            {isConfirmingDelete ? (
+                              <>
+                                <p className="px-3 py-2 text-xs text-neutral-500">
+                                  Delete message?
+                                </p>
 
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteMessage(message.id)}
-                              className="block w-full px-3 py-2 text-left text-xs text-red-300 transition hover:bg-red-950/30 hover:text-red-200"
-                            >
-                              Delete
-                            </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteMessage(message.id)}
+                                  className="block w-full px-3 py-2 text-left text-xs text-red-300 transition hover:bg-red-950/30 hover:text-red-200"
+                                >
+                                  Delete
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setConfirmingDeleteMessageId(null)
+                                  }
+                                  className="block w-full px-3 py-2 text-left text-xs text-neutral-400 transition hover:bg-[#151515] hover:text-white"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => startEditingMessage(message)}
+                                  className="block w-full px-3 py-2 text-left text-xs text-neutral-300 transition hover:bg-[#151515] hover:text-white"
+                                >
+                                  Edit
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    requestDeleteConfirmation(message.id)
+                                  }
+                                  className="block w-full px-3 py-2 text-left text-xs text-red-300 transition hover:bg-red-950/30 hover:text-red-200"
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
