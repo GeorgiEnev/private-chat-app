@@ -1,39 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { CreateRoomForm } from "./create-room-form";
-import { RoomExpiryCountdown } from "./room-expiry-countdown";
 
 type CreateRoomModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-type CreatedRoom = {
-  id: string;
-  name: string;
-  token: string;
-  isDestructible: boolean;
-  expiresAt: Date | string | null;
-};
-
 export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
-  const [createdRoom, setCreatedRoom] = useState<CreatedRoom | null>(null);
-
   const router = useRouter();
 
   if (!isOpen) {
     return null;
-  }
-
-  async function handleCopyToken() {
-    if (!createdRoom) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(createdRoom.token);
   }
 
   return (
@@ -41,74 +21,47 @@ export function CreateRoomModal({ isOpen, onClose }: CreateRoomModalProps) {
       <div className="w-full max-w-lg rounded-3xl bg-[#0b0b0b] p-6 shadow-2xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-white">
-              {createdRoom ? "Room created" : "Create room"}
-            </h2>
+            <h2 className="text-xl font-semibold text-white">Create room</h2>
 
             <p className="mt-1 text-sm text-neutral-500">
-              {createdRoom
-                ? "Share the invite token with others."
-                : "Create a new private chat room."}
+              Create a new private chat room.
             </p>
           </div>
 
           <button
-            onClick={() => {
-              setCreatedRoom(null);
-              onClose();
-            }}
+            type="button"
+            aria-label="Close create room dialog"
+            onClick={onClose}
             className="flex h-10 w-10 items-center justify-center rounded-xl text-neutral-500 transition hover:bg-[#141414] hover:text-white"
           >
-            ✕
+            <CloseIcon />
           </button>
         </div>
 
-        {!createdRoom ? (
-          <CreateRoomForm
-            onRoomCreated={(room) => {
-              setCreatedRoom(room);
-              router.refresh();
-            }}
-          />
-        ) : (
-          <div className="space-y-5">
-            <div className="rounded-2xl bg-[#101010] p-5">
-              <p className="text-xs uppercase tracking-[0.2em] text-neutral-600">
-                Invite token
-              </p>
-
-              <p className="mt-3 break-all font-mono text-lg text-white">
-                {createdRoom.token}
-              </p>
-            </div>
-
-            {createdRoom.expiresAt && (
-              <RoomExpiryCountdown
-                expiresAt={new Date(createdRoom.expiresAt).toISOString()}
-              />
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleCopyToken}
-                className="flex h-11 flex-1 items-center justify-center rounded-xl bg-white text-sm font-medium text-black transition hover:opacity-85"
-              >
-                Copy token
-              </button>
-
-              <button
-                onClick={() => {
-                  setCreatedRoom(null);
-                  onClose();
-                }}
-                className="flex h-11 flex-1 items-center justify-center rounded-xl bg-[#141414] text-sm text-neutral-300 transition hover:bg-[#212121]"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        )}
+        <CreateRoomForm
+          onRoomCreated={(room) => {
+            router.push(`/dashboard/room/${room.token}`);
+          }}
+        />
       </div>
     </div>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className="h-4 w-4"
+      fill="none"
+    >
+      <path
+        d="m5.5 5.5 9 9M14.5 5.5l-9 9"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.7"
+      />
+    </svg>
   );
 }
